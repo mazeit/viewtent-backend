@@ -26,7 +26,7 @@ app.use(fileuUpload());
 
 app.use(require('method-override')());
 app.use(express.static(__dirname + '/public'));
-app.use(express.static(__dirname + '/../viewtent-cllient/build'));
+app.use(express.static(__dirname + '/../viewtent-client/build'));
 
 app.use(session({ secret: 'interpro', cookie: { maxAge: 60000 }, resave: false, saveUninitialized: false  }));
 
@@ -50,7 +50,7 @@ require('./config/passport');
 app.use(require('./routes'));
 
 app.get('/*', (req, res) => {
-  res.sendFile(path.join(__dirname, '/../viewtent-cllient/build/index.html'));
+  res.sendFile(path.join(__dirname, '/../viewtent-client/build/index.html'));
 })
 
 /// catch 404 and forward to error handler

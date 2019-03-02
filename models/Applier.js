@@ -25,12 +25,33 @@ ApplierSchema.methods.slugify = function() {
 
 // Requires population of author
 ApplierSchema.methods.toJSONFor = function(client){
+
+  var difference_ms = new Date() - new Date(this.createdAt);
+  difference_ms = difference_ms/1000;
+  var seconds = Math.floor(difference_ms % 60);
+  difference_ms = difference_ms/60; 
+  var minutes = Math.floor(difference_ms % 60);
+  difference_ms = difference_ms/60; 
+  var hours = Math.floor(difference_ms % 24);  
+  var days = Math.floor(difference_ms/24);
+  var offset = '';
+  if (days > 0 ) {
+    offset =  days + (days>1? ' days' : ' day')
+  }
+  else if( hours > 0 ){
+    offset = hours + (hours>1? ' hours' : ' hour')
+  }
+  else {
+    offset =  minutes + (minutes > 1? ' mins' : ' min')
+  }
+
   return {
     slug: this.slug,
     video: this.video,
     createdAt: this.createdAt,
     author: this.author.toProfileJSONFor(client),
-    interview : this.interview
+    interview : this.interview,
+    offset : offset
   };
 };
 

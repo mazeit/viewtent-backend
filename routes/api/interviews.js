@@ -67,6 +67,26 @@ router.post('/upload' , async function(req, res, next) {
   // });
 });
 
+router.post('/:interview/invite', auth.required, function(req, res, next) {
+  User.findById(req.payload.id).then(async function(user){
+    if(!user){ return res.sendStatus(401); }
+    req.interview.invitations = req.interview.invitations.concat(req.body.email);
+    return req.interview.save().then(function(interview) {
+      res.json({interview: interview.toJSONFor(user)});
+    });
+  }).catch(next);
+});
+
+router.delete('/:interview/invite/:email', auth.required, function(req, res, next) {
+  User.findById(req.payload.id).then(async function(user){
+    if(!user){ return res.sendStatus(401); }
+    req.interview.invitations.remove(req.params.email);
+    return req.interview.save().then(function(interview) {
+      res.json({interview: interview.toJSONFor(user)});
+    });
+  }).catch(next);
+});
+
 router.get('/', auth.optional, function(req, res, next) {
   var query = {};
   var limit = 20;
@@ -195,16 +215,12 @@ router.put('/:interview', auth.required, function(req, res, next) {
         req.interview.title = req.body.interview.title;
       }
 
-      if(typeof req.body.interview.description !== 'undefined'){
-        req.interview.description = req.body.interview.description;
+      if(typeof req.body.interview.require !== 'undefined'){
+        req.interview.require = req.body.interview.require;
       }
 
-      if(typeof req.body.interview.body !== 'undefined'){
-        req.interview.body = req.body.interview.body;
-      }
-
-      if(typeof req.body.interview.tagList !== 'undefined'){
-        req.interview.tagList = req.body.interview.tagList
+      if(typeof req.body.interview.allow !== 'undefined'){
+        req.interview.allow = req.body.interview.allow;
       }
 
       req.interview.save().then(function(interview){

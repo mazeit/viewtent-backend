@@ -15,6 +15,7 @@ var InterviewSchema = new mongoose.Schema({
   author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   appliers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Applier' }],
   questions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Question' }],
+  invitations : [{ type: String }],
   tagList: [{ type: String }]
 }, {timestamps: true});
 
@@ -34,6 +35,26 @@ InterviewSchema.methods.slugify = function() {
 
 
 InterviewSchema.methods.toJSONFor = function(user){
+
+  var difference_ms = new Date() - new Date(this.createdAt);
+  difference_ms = difference_ms/1000;
+  var seconds = Math.floor(difference_ms % 60);
+  difference_ms = difference_ms/60; 
+  var minutes = Math.floor(difference_ms % 60);
+  difference_ms = difference_ms/60; 
+  var hours = Math.floor(difference_ms % 24);  
+  var days = Math.floor(difference_ms/24);
+  var offset = '';
+  if (days > 0 ) {
+    offset =  days + (days>1? ' days' : ' day')
+  }
+  else if( hours > 0 ){
+    offset = hours + (hours>1? ' hours' : ' hour')
+  }
+  else {
+    offset =  minutes + (minutes > 1? ' mins' : ' min')
+  }
+
   return {
     slug: this.slug,
     title: this.title,
@@ -46,7 +67,9 @@ InterviewSchema.methods.toJSONFor = function(user){
     author: this.author.toProfileJSONFor(user),
     appliers: this.appliers,
     questions: this.questions,
-    tagList: this.tagList
+    tagList: this.tagList,
+    offset : offset,
+    invitations : this.invitations
   };
 };
 

@@ -28,7 +28,7 @@ app.use(require('method-override')());
 app.use(express.static(__dirname + '/public'));
 app.use(express.static(__dirname + '/../viewtent-client/build'));
 
-app.use(session({ secret: 'interpro', cookie: { maxAge: 60000 }, resave: false, saveUninitialized: false  }));
+app.use(session({ secret: 'viewtent', cookie: { maxAge: 60000 }, resave: false, saveUninitialized: false  }));
 
 if (!isProduction) {
   app.use(errorhandler());
@@ -37,11 +37,12 @@ if (!isProduction) {
 if(isProduction){
   mongoose.connect(process.env.MONGODB_URI);
 } else {
-  mongoose.connect('mongodb://localhost/interpro');
+  mongoose.connect('mongodb://localhost/viewtent');
   mongoose.set('debug', true);
 }
 
 require('./models/User');
+require('./models/Client');
 require('./models/Interview');
 require('./models/Question');
 require('./models/Applier');

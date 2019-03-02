@@ -3,6 +3,7 @@ var mongoose = require('mongoose');
 var Interview = mongoose.model('Interview');
 var Question = mongoose.model('Question');
 var User = mongoose.model('User');
+var Client = mongoose.model('Client');
 var Applier = mongoose.model('Applier');
 var auth = require('../auth');
 var fs = require('fs');
@@ -182,7 +183,6 @@ router.get('/:interview', auth.optional, function(req, res, next) {
     req.interview.populate('author').execPopulate()
   ]).then(function(results){
     var user = results[0];
-
     return res.json({interview: req.interview.toJSONFor(user)});
   }).catch(next);
 });
@@ -329,24 +329,36 @@ router.delete('/:interview/questions/:question', auth.required, function(req, re
 });
 
 
-router.post('/:interview/appliers', auth.required, function(req, res, next) {
-  User.findById(req.payload.id).then(async function(user){
-    if(!user){ return res.sendStatus(401); }
-    Applier.findOne({ author : user, interview : req.interview}).then(function(resApplier){
+router.post('/:interview/appliers', auth.optional, function(req, res, next) {
+  Client.findOne({ email : req.body.applier.email }).then(async function(resClient){
+    var client = resClient;
+    if(!resClient){ 
+      var newClient = new Client({
+        email : req.body.applier.email,
+        fullname : req.body.applier.fullname
+      });
+      client = await newClient.save().then(function(res){
+        return res;
+      });
+    }else {
+      client.fullname = req.body.applier.fullname;
+      await client.save();
+    }
+    Applier.findOne({ author : client, interview : req.interview}).then(function(resApplier){
       var applier = null;
       if (resApplier) {
         applier = resApplier;
         applier.video = req.body.applier.video;
       }
       else {
-        applier = new Applier(req.body.applier); 
+        applier = new Applier({video : req.body.applier.video}); 
       }
       applier.interview = req.interview;
-      applier.author = user;
+      applier.author = client;
       return applier.save().then(function(){
         req.interview.appliers = req.interview.appliers.concat([applier]);
         return req.interview.save().then(function(interview) {
-          res.json({applier: applier.toJSONFor(user, req.interview.author)});
+          res.json({applier: applier.toJSONFor(client, req.interview.author)});
         });
       });
     });

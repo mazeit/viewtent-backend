@@ -381,7 +381,7 @@ router.post('/:interview/appliers', auth.optional, function(req, res, next) {
   }).catch(next);
 });
 
-router.get('/:interview/appliers', auth.optional, function(req, res, next){
+router.get('/:interview/appliers/', auth.optional, function(req, res, next){
   Promise.resolve(req.payload ? User.findById(req.payload.id) : null).then(function(user){
     return req.interview.populate({
       path: 'appliers',
@@ -395,7 +395,7 @@ router.get('/:interview/appliers', auth.optional, function(req, res, next){
       }
     }).execPopulate().then(function(interview) {
       return res.json({appliers: req.interview.appliers.map(function(applier){
-        return applier.toJSONFor(user);
+          return applier.toJSONFor(user);
       })});
     });
   }).catch(next);

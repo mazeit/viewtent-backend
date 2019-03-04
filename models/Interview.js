@@ -55,9 +55,11 @@ InterviewSchema.methods.toJSONFor = function(user){
     offset =  minutes + (minutes > 1? ' mins' : ' min')
   }
 
+  var title = this.title && this.title != '' ? this.title : 'No Title'
+
   return {
     slug: this.slug,
-    title: this.title,
+    title: title,
     image: this.image,
     require : this.require,
     allow : this.allow,
